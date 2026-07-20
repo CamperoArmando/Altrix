@@ -1,18 +1,4 @@
-from flask import Blueprint, request, jsonify
-from servicio.producto_servicio import ProductoServicio
 
-producto_bp = Blueprint("producto", __name__)
-servicio = ProductoServicio()
-
-@producto_bp.route("/productos", methods=["GET"])
-def listar():
-    data, status = servicio.listar()
-    return jsonify(data), status
-
-@producto_bp.route("/productos/<int:id>", methods=["GET"])
-def consultar(id):
-    data, status = servicio.consultar(id)
-    return jsonify(data), status
 
 @producto_bp.route("/productos", methods=["POST"])
 def alta():
