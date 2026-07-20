@@ -22,7 +22,12 @@ from controlador.producto_controlador import producto_bp
 app.register_blueprint(producto_bp)
 
 
-
+def _sembrar_roles():
+    """Crea los roles base (Administrador, Vendedor) si no existen."""
+    for nombre in ("Administrador", "Vendedor"):
+        if not Rol.query.filter_by(nombre=nombre).first():
+            db.session.add(Rol(nombre=nombre))
+    db.session.commit()
 
 
 with app.app_context():
