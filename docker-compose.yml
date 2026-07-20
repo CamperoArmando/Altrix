@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: altrix_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: altrix_db
+      POSTGRES_USER: altrix_user
+      POSTGRES_PASSWORD: altrix_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - altrix_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U altrix_user -d altrix_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  servidor:
+    build: ./servidor
+    container_name: altrix_servidor
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: altrix_db
+      DB_USER: altrix_user
+      DB_PASSWORD: altrix_pass
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  cliente:
+    build: ./cliente
+    container_name: altrix_cliente
+    restart: unless-stopped
+    environment:
+      API_URL: http://servidor:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - servidor
+
+volumes:
+  altrix_db_data:
