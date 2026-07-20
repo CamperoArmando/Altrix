@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Productos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #4a90d9; color: white; }
+        input { margin: 4px; padding: 6px; width: 140px; }
+        button { padding: 6px 12px; cursor: pointer; margin: 2px; }
+        h2 { color: #333; }
+        .acciones { display: flex; flex-wrap: wrap; gap: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Sistema de Productos</h1>
+
+    <h2>Agregar Producto</h2>
+    <form action="/alta" method="POST">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="number" step="0.01" name="precio" placeholder="Precio" required>
+        <input type="number" name="cantidad" placeholder="Cantidad" required>
+        <input type="text" name="categoria" placeholder="Categoría" required>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <h2>Lista de Productos</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Categoría</th>
+            <th>Acciones</th>
+        </tr>
+        <% productos.forEach(p => { %>
+        <tr>
+            <td><%= p.id %></td>
+            <td><%= p.nombre %></td>
+            <td>$<%= p.precio %></td>
+            <td><%= p.cantidad %></td>
+            <td><%= p.categoria %></td>
+            <td class="acciones">
+                <!-- Eliminar -->
+                <form action="/baja/<%= p.id %>" method="POST">
+                    <button type="submit">Eliminar</button>
+                </form>
+                <!-- Vender -->
+                <form action="/vender/<%= p.id %>" method="POST">
+                    <input type="number" name="cantidad" placeholder="Cant." style="width:60px" min="1" required>
+                    <button type="submit">Vender</button>
+                </form>
+                <!-- Modificar -->
+                <form action="/modificar/<%= p.id %>" method="POST">
+                    <input type="text" name="nombre" placeholder="Nombre" value="<%= p.nombre %>">
+                    <input type="number" step="0.01" name="precio" placeholder="Precio" value="<%= p.precio %>">
+                    <input type="number" name="cantidad" placeholder="Cantidad" value="<%= p.cantidad %>">
+                    <input type="text" name="categoria" placeholder="Categoría" value="<%= p.categoria %>">
+                    <button type="submit">Modificar</button>
+                </form>
+            </td>
+        </tr>
+        <% }) %>
+    </table>
+</body>
+</html>
