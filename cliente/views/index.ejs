@@ -2,68 +2,141 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>CRUD Productos</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #4a90d9; color: white; }
-        input { margin: 4px; padding: 6px; width: 140px; }
-        button { padding: 6px 12px; cursor: pointer; margin: 2px; }
-        h2 { color: #333; }
-        .acciones { display: flex; flex-wrap: wrap; gap: 4px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Altrix — Productos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <h1>Sistema de Productos</h1>
+<div class="wrap">
 
-    <h2>Agregar Producto</h2>
-    <form action="/alta" method="POST">
-        <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="number" step="0.01" name="precio" placeholder="Precio" required>
-        <input type="number" name="cantidad" placeholder="Cantidad" required>
-        <input type="text" name="categoria" placeholder="Categoría" required>
-        <button type="submit">Agregar</button>
-    </form>
+    <header class="page-header">
+        <div>
+            <span class="eyebrow">Altrix · Inventario</span>
+            <h1>Productos</h1>
+        </div>
+        <div class="usuario-bar">
+            <span class="usuario-info">
+                <%= usuario ? usuario.nombre : 'Invitado' %>
+                <span class="usuario-rol"><%= usuario ? usuario.rol : '' %></span>
+            </span>
+            <a href="/logout" class="btn btn-ghost btn-sm">Cerrar sesión</a>
+        </div>
+    </header>
 
-    <h2>Lista de Productos</h2>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Precio</th>
-            <th>Cantidad</th>
-            <th>Categoría</th>
-            <th>Acciones</th>
-        </tr>
-        <% productos.forEach(p => { %>
-        <tr>
-            <td><%= p.id %></td>
-            <td><%= p.nombre %></td>
-            <td>$<%= p.precio %></td>
-            <td><%= p.cantidad %></td>
-            <td><%= p.categoria %></td>
-            <td class="acciones">
-                <!-- Eliminar -->
-                <form action="/baja/<%= p.id %>" method="POST">
-                    <button type="submit">Eliminar</button>
-                </form>
-                <!-- Vender -->
-                <form action="/vender/<%= p.id %>" method="POST">
-                    <input type="number" name="cantidad" placeholder="Cant." style="width:60px" min="1" required>
-                    <button type="submit">Vender</button>
-                </form>
-                <!-- Modificar -->
-                <form action="/modificar/<%= p.id %>" method="POST">
-                    <input type="text" name="nombre" placeholder="Nombre" value="<%= p.nombre %>">
-                    <input type="number" step="0.01" name="precio" placeholder="Precio" value="<%= p.precio %>">
-                    <input type="number" name="cantidad" placeholder="Cantidad" value="<%= p.cantidad %>">
-                    <input type="text" name="categoria" placeholder="Categoría" value="<%= p.categoria %>">
-                    <button type="submit">Modificar</button>
-                </form>
-            </td>
-        </tr>
+    <div class="summary-bar">
+        <div class="summary">
+            <strong><%= productos.length %></strong> producto<%= productos.length === 1 ? '' : 's' %>
+            &nbsp;·&nbsp; valor en inventario
+            <strong>$<%= productos.reduce((acc, p) => acc + (p.precio * p.cantidad), 0).toFixed(2) %></strong>
+        </div>
+    </div>
+
+    <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="buscador" placeholder="Buscar por nombre o categoría…" autocomplete="off">
+    </div>
+
+    <% if (usuario && usuario.rol === 'Administrador') { %>
+    <details class="nuevo-producto">
+        <summary>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Nuevo producto
+        </summary>
+        <form class="form-alta" action="/alta" method="POST">
+            <div class="campo">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            <div class="campo">
+                <label for="precio">Precio</label>
+                <input type="number" step="0.01" id="precio" name="precio" required>
+            </div>
+            <div class="campo">
+                <label for="cantidad">Cantidad</label>
+                <input type="number" id="cantidad" name="cantidad" required>
+            </div>
+            <div class="campo">
+                <label for="categoria">Categoría</label>
+                <input type="text" id="categoria" name="categoria" required>
+            </div>
+            <div class="acciones-form">
+                <button type="submit" class="btn btn-primary">Guardar producto</button>
+            </div>
+        </form>
+    </details>
+    <% } %>
+
+    <div class="lista-header">
+        <h2>Catálogo</h2>
+    </div>
+
+    <% if (productos.length === 0) { %>
+        <div class="vacio">
+            <strong>Todavía no hay productos</strong>
+            Usa "Nuevo producto" arriba para agregar el primero.
+        </div>
+    <% } else { %>
+        <% productos.forEach(p => {
+            const minimo = p.stock_minimo || 5;
+            let estado = 'ok';
+            if (p.cantidad <= minimo) estado = 'critico';
+            else if (p.cantidad <= minimo * 2) estado = 'bajo';
+        %>
+        <div class="producto-row" data-nombre="<%= p.nombre.toLowerCase() %>" data-categoria="<%= (p.categoria || '').toLowerCase() %>">
+            <div class="producto-main">
+                <div class="producto-nombre">
+                    <span class="nombre"><%= p.nombre %></span>
+                    <span class="categoria-tag"><%= p.categoria %></span>
+                </div>
+                <div class="producto-precio">$<%= Number(p.precio).toFixed(2) %></div>
+                <div class="producto-stock">
+                    <span class="stock-dot <%= estado %>"></span>
+                    <%= p.cantidad %> u.
+                </div>
+                <div></div>
+                <div class="producto-acciones">
+                    <button type="button" class="icon-btn toggle-panel" title="<%= usuario && usuario.rol === 'Administrador' ? 'Editar / vender' : 'Vender' %>" aria-label="Acciones del producto">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    </button>
+                    <% if (usuario && usuario.rol === 'Administrador') { %>
+                    <form class="form-eliminar" action="/baja/<%= p.id %>" method="POST">
+                        <button type="submit" class="icon-btn danger" title="Eliminar" aria-label="Eliminar producto">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        </button>
+                    </form>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="panel-secundario<%= (usuario && usuario.rol === 'Administrador') ? '' : ' un-bloque' %>">
+                <% if (usuario && usuario.rol === 'Administrador') { %>
+                <div class="bloque">
+                    <h3>Modificar</h3>
+                    <form class="form-inline" action="/modificar/<%= p.id %>" method="POST">
+                        <input type="text" name="nombre" value="<%= p.nombre %>" required>
+                        <input type="number" step="0.01" name="precio" value="<%= p.precio %>" required>
+                        <input type="number" name="cantidad" value="<%= p.cantidad %>" required>
+                        <input type="text" name="categoria" value="<%= p.categoria %>" required>
+                        <button type="submit" class="btn btn-ghost">Guardar</button>
+                    </form>
+                </div>
+                <% } %>
+                <div class="bloque">
+                    <h3>Vender</h3>
+                    <form class="form-inline" action="/vender/<%= p.id %>" method="POST">
+                        <input type="number" class="venta-cant" name="cantidad" placeholder="Cant." min="1" max="<%= p.cantidad %>" required>
+                        <button type="submit" class="btn btn-primary">Confirmar venta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
         <% }) %>
-    </table>
+    <% } %>
+
+</div>
+<script src="/js/app.js"></script>
 </body>
 </html>
