@@ -17,3 +17,8 @@ class Config:
         f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Clave para firmar los JWT de sesión (HU-08). En producción SIEMPRE
+    # debe sobreescribirse con una variable de entorno propia.
+    SECRET_KEY = os.getenv("SECRET_KEY", "clave-de-desarrollo-cambiar-en-produccion")
+    JWT_EXP_HORAS = int(os.getenv("JWT_EXP_HORAS", "8"))
