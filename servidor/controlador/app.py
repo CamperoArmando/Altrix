@@ -1,4 +1,3 @@
-# servidor/controlador/app.py
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -22,8 +21,12 @@ from modelo.usuario import Usuario  # noqa: E402
 
 from controlador.producto_controlador import producto_bp
 from controlador.auth_controlador import auth_bp
+from controlador.categoria_controlador import categoria_bp
+from controlador.venta_controlador import venta_bp
 app.register_blueprint(producto_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(categoria_bp)
+app.register_blueprint(venta_bp)
 
 
 def _sembrar_roles():
@@ -36,21 +39,22 @@ def _sembrar_roles():
 
 def _sembrar_admin():
     """
-    Crea un usuario Administrador inicial si no hay ninguno, para poder
-    iniciar sesión desde el primer arranque (HU-08). Credenciales
-    configurables por variables de entorno para no dejar nada fijo en código.
+    Crea un usuario Administrador inicial si todavía no existe ningún
+    usuario en el sistema. Sin esto, nadie podría iniciar sesión la
+    primera vez que se levanta el proyecto.
+
+    Credenciales por defecto (cámbialas en cuanto puedas iniciar sesión):
+      email:    admin@altrix.com
+      password: Admin123!
     """
-    admin_email = os.getenv("ADMIN_EMAIL", "admin@altrix.local")
-    admin_password = os.getenv("ADMIN_PASSWORD", "Admin123!")
-
-    if Usuario.query.filter_by(email=admin_email).first():
+    if Usuario.query.count() > 0:
         return
-
     rol_admin = Rol.query.filter_by(nombre="Administrador").first()
-    usuario = Usuario(nombre="Administrador", email=admin_email, rol_id=rol_admin.id)
-    usuario.set_password(admin_password)
-    db.session.add(usuario)
+    admin = Usuario(nombre="Administrador", email="admin@altrix.com", rol_id=rol_admin.id)
+    admin.set_password("Admin123!")
+    db.session.add(admin)
     db.session.commit()
+    print(">> Usuario Administrador inicial creado: admin@altrix.com / Admin123!")
 
 
 with app.app_context():
