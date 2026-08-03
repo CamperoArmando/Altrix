@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Altrix — Ventas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="wrap">
+
+    <%- include('partials/nav', { usuario, activo: 'ventas', titulo: 'Historial de ventas' }) %>
+
+    <form class="filtros-ventas" method="GET" action="/ventas">
+        <div class="campo">
+            <label for="desde">Desde</label>
+            <input type="date" id="desde" name="desde" value="<%= filtros.desde || '' %>">
+        </div>
+        <div class="campo">
+            <label for="hasta">Hasta</label>
+            <input type="date" id="hasta" name="hasta" value="<%= filtros.hasta || '' %>">
+        </div>
+        <div class="campo campo-ancho">
+            <label for="producto_id">Producto</label>
+            <select id="producto_id" name="producto_id">
+                <option value="">Todos los productos</option>
+                <% productos.forEach(p => { %>
+                    <option value="<%= p.id %>" <%= String(filtros.producto_id) === String(p.id) ? 'selected' : '' %>><%= p.nombre %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="acciones-form acciones-filtro">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="/ventas" class="btn btn-ghost">Limpiar</a>
+        </div>
+    </form>
+
+    <div class="summary-bar">
+        <div class="summary">
+            <strong><%= ventas.length %></strong> venta<%= ventas.length === 1 ? '' : 's' %>
+            &nbsp;·&nbsp; total
+            <strong>$<%= ventas.reduce((acc, v) => acc + v.total, 0).toFixed(2) %></strong>
+        </div>
+    </div>
+
+    <% if (ventas.length === 0) { %>
+        <div class="vacio">
+            <strong>No hay ventas registradas</strong>
+            Ajusta los filtros o registra una venta desde el catálogo de productos.
+        </div>
+    <% } else { %>
+        <% ventas.forEach(v => { %>
+        <div class="venta-row">
+            <div class="venta-main">
+                <div class="venta-fecha"><%= new Date(v.fecha).toLocaleString('es-MX') %></div>
+                <div class="venta-usuario"><%= v.usuario_nombre %></div>
+                <div class="venta-total">$<%= v.total.toFixed(2) %></div>
+            </div>
+            <div class="venta-detalles">
+                <% v.detalles.forEach(d => { %>
+                    <span class="detalle-linea">
+                        <%= d.cantidad %> × <%= d.producto_nombre %> — $<%= d.subtotal.toFixed(2) %>
+                    </span>
+                <% }) %>
+            </div>
+        </div>
+        <% }) %>
+    <% } %>
+
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>

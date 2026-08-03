@@ -73,13 +73,3 @@ class ProductoServicio:
 
         self.__repo.actualizar(producto)
         return {"mensaje": "Producto modificado correctamente"}, 200
-
-    def vender(self, id: int, cantidad: int):
-        producto = self.__repo.buscar(id)
-        if not producto:
-            return {"error": "Producto no encontrado"}, 404
-        if producto.get_cantidad() < cantidad:
-            return {"error": "Stock insuficiente"}, 400
-        producto.set_cantidad(producto.get_cantidad() - cantidad)
-        self.__repo.actualizar(producto)
-        return {"mensaje": "Venta realizada correctamente"}, 200

@@ -12,19 +12,7 @@
 <body>
 <div class="wrap">
 
-    <header class="page-header">
-        <div>
-            <span class="eyebrow">Altrix · Inventario</span>
-            <h1>Productos</h1>
-        </div>
-        <div class="usuario-bar">
-            <span class="usuario-info">
-                <%= usuario ? usuario.nombre : 'Invitado' %>
-                <span class="usuario-rol"><%= usuario ? usuario.rol : '' %></span>
-            </span>
-            <a href="/logout" class="btn btn-ghost btn-sm">Cerrar sesión</a>
-        </div>
-    </header>
+    <%- include('partials/nav', { usuario, activo: 'productos', titulo: 'Productos' }) %>
 
     <div class="summary-bar">
         <div class="summary">
@@ -38,6 +26,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" id="buscador" placeholder="Buscar por nombre o categoría…" autocomplete="off">
     </div>
+
+    <% if (mensaje) { %>
+        <div class="alerta <%= mensaje.tipo %>"><%= mensaje.texto %></div>
+    <% } %>
 
     <% if (usuario && usuario.rol === 'Administrador') { %>
     <details class="nuevo-producto">
@@ -60,7 +52,12 @@
             </div>
             <div class="campo">
                 <label for="categoria">Categoría</label>
-                <input type="text" id="categoria" name="categoria" required>
+                <select id="categoria" name="categoria" required>
+                    <option value="" disabled selected>Elige una categoría…</option>
+                    <% categorias.forEach(c => { %>
+                        <option value="<%= c.nombre %>"><%= c.nombre %></option>
+                    <% }) %>
+                </select>
             </div>
             <div class="acciones-form">
                 <button type="submit" class="btn btn-primary">Guardar producto</button>
@@ -126,7 +123,7 @@
                 <% } %>
                 <div class="bloque">
                     <h3>Vender</h3>
-                    <form class="form-inline" action="/vender/<%= p.id %>" method="POST">
+                    <form class="form-inline" action="/ventas/<%= p.id %>" method="POST">
                         <input type="number" class="venta-cant" name="cantidad" placeholder="Cant." min="1" max="<%= p.cantidad %>" required>
                         <button type="submit" class="btn btn-primary">Confirmar venta</button>
                     </form>
