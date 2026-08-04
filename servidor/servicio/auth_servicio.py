@@ -65,7 +65,7 @@ class AuthServicio:
 
     def _generar_token(self, usuario: Usuario) -> str:
         payload = {
-            "sub": usuario.id,
+            "sub": str(usuario.id),
             "nombre": usuario.nombre,
             "rol": usuario.rol.nombre,
             "exp": datetime.utcnow() + timedelta(hours=current_app.config["JWT_EXP_HORAS"]),

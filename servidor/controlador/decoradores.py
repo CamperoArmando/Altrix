@@ -26,7 +26,7 @@ def requiere_auth(f):
         payload, error = _autenticar()
         if error:
             return error
-        g.usuario_id = payload["sub"]
+        g.usuario_id = int(payload["sub"])
         g.usuario_rol = payload["rol"]
         return f(*args, **kwargs)
     return wrapper
