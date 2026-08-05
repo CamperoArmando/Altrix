@@ -214,6 +214,31 @@ app.post("/categorias/:id/eliminar", requireAuth, async (req, res) => {
     }
 });
 
+// ---------- Alertas de stock (microservicio Go) ----------
+
+app.get("/alertas", requireAuth, async (req, res) => {
+    try {
+        const [alertasRes, meRes] = await Promise.all([
+            api.alertasStock(req.token),
+            api.me(req.token)
+        ]);
+        res.render("alertas", {
+            alertas: alertasRes.data.alertas,
+            usuario: meRes.data,
+            mensaje: mensajeDesdeQuery(req)
+        });
+    } catch (error) {
+        if (error.response?.status === 401) {
+            res.clearCookie("token");
+            return res.redirect("/login");
+        }
+        if (error.response?.status === 403) {
+            return res.redirect("/?error=" + encodeURIComponent("No tienes permisos para ver las alertas de stock"));
+        }
+        res.render("alertas", { alertas: [], usuario: null, mensaje: { tipo: "error", texto: "No se pudo consultar el servicio de alertas." } });
+    }
+});
+
 app.listen(3000, () => {
     console.log("Cliente corriendo en http://localhost:3000");
 });

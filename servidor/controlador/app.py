@@ -23,15 +23,19 @@ from controlador.producto_controlador import producto_bp
 from controlador.auth_controlador import auth_bp
 from controlador.categoria_controlador import categoria_bp
 from controlador.venta_controlador import venta_bp
+from controlador.usuario_controlador import usuario_bp
+from controlador.reporte_controlador import reporte_bp
 app.register_blueprint(producto_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(categoria_bp)
 app.register_blueprint(venta_bp)
+app.register_blueprint(usuario_bp)
+app.register_blueprint(reporte_bp)
 
 
 def _sembrar_roles():
-    """Crea los roles base (Administrador, Vendedor) si no existen."""
-    for nombre in ("Administrador", "Vendedor"):
+    """Crea los roles base (Administrador, Vendedor, Consultor) si no existen."""
+    for nombre in ("Administrador", "Vendedor", "Consultor"):
         if not Rol.query.filter_by(nombre=nombre).first():
             db.session.add(Rol(nombre=nombre))
     db.session.commit()
@@ -57,9 +61,20 @@ def _sembrar_admin():
     print(">> Usuario Administrador inicial creado: admin@altrix.com / Admin123!")
 
 
+from seed_datos import sembrar_productos  # noqa: E402
+
 with app.app_context():
     db.create_all()
     _sembrar_roles()
     _sembrar_admin()
+    sembrar_productos()
 
-app.run(debug=False, port=5000, host="0.0.0.0", threaded=True)
+if __name__ == "__main__":
+    # IMPORTANTE: debug=True activa el auto-reloader de Werkzeug, que vigila
+    # el filesystem y puede reiniciar el proceso a mitad de una sesión
+    # (p.ej. por escritura de .pyc, journaling de la DB, etc.). Dentro de un
+    # contenedor esto es especialmente inestable: si el reinicio cae justo
+    # entre el login y la siguiente petición, el cliente ve el token
+    # "rechazado de inmediato". threaded=True permite además atender las
+    # peticiones concurrentes que dispara el cliente Node (Promise.all).
+    app.run(debug=False, port=5000, host="0.0.0.0", threaded=True)

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Altrix — Alertas de stock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="wrap">
+
+    <%- include('partials/nav', { usuario, activo: 'alertas', titulo: 'Alertas de stock' }) %>
+
+    <div class="summary-bar">
+        <div class="summary">
+            <strong><%= alertas.length %></strong> producto<%= alertas.length === 1 ? '' : 's' %> en o por debajo de su stock mínimo
+            &nbsp;·&nbsp; calculado por el servicio de alertas (Go)
+        </div>
+    </div>
+
+    <% if (mensaje) { %>
+        <div class="alerta <%= mensaje.tipo %>"><%= mensaje.texto %></div>
+    <% } %>
+
+    <div class="lista-header">
+        <h2>Productos a reabastecer</h2>
+    </div>
+
+    <% if (alertas.length === 0) { %>
+        <div class="vacio">
+            <strong>Todo el inventario está por encima de su stock mínimo</strong>
+            No hay productos que necesiten reabastecerse en este momento.
+        </div>
+    <% } else { %>
+        <% alertas.forEach(a => { %>
+        <div class="producto-row" data-nombre="<%= a.nombre.toLowerCase() %>" data-categoria="<%= (a.categoria || '').toLowerCase() %>">
+            <div class="producto-main">
+                <div class="producto-nombre">
+                    <span class="nombre"><%= a.nombre %></span>
+                    <span class="categoria-tag"><%= a.categoria %></span>
+                </div>
+                <div class="producto-precio">$<%= Number(a.precio).toFixed(2) %></div>
+                <div class="producto-stock">
+                    <span class="stock-dot <%= a.nivel === 'agotado' ? 'critico' : 'bajo' %>"></span>
+                    <%= a.cantidad %> u. <span style="color: var(--text-muted); margin-left: 4px;">(mínimo <%= a.stock_minimo %>)</span>
+                </div>
+                <div style="font-family: var(--font-mono); font-size: 13px; color: <%= a.nivel === 'agotado' ? 'var(--danger)' : 'var(--warn)' %>;">
+                    <%= a.nivel === 'agotado' ? 'Agotado' : `Faltan ${a.faltante}` %>
+                </div>
+                <div></div>
+            </div>
+        </div>
+        <% }) %>
+    <% } %>
+
+</div>
+</body>
+</html>

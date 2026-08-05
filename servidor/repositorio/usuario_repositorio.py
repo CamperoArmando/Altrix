@@ -18,3 +18,13 @@ class UsuarioRepositorio:
 
     def listar(self):
         return Usuario.query.order_by(Usuario.id).all()
+
+    def actualizar(self):
+        db.session.commit()
+
+    def eliminar_logico(self, usuario: Usuario):
+        """Baja lógica: se conserva el registro (ventas/movimientos ya
+        asociados a este usuario no deben perder su referencia), pero
+        deja de poder iniciar sesión ni aparecer como activo."""
+        usuario.activo = False
+        db.session.commit()

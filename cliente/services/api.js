@@ -3,6 +3,8 @@ const axios = require("axios");
 // En Docker, el cliente debe llamar al servidor por su nombre de servicio
 // ("servidor"), no por localhost. Fuera de Docker sigue apuntando a localhost.
 const BASE_URL = process.env.API_URL || "http://localhost:5000";
+// Microservicio de alertas de stock, escrito en Go (segundo lenguaje de backend).
+const ALERTAS_URL = process.env.ALERTAS_URL || "http://localhost:5001";
 
 // El token viaja por parámetro (no como variable global) porque este
 // mismo proceso Node atiende a varios usuarios con sesiones distintas.
@@ -29,7 +31,10 @@ const api = {
 
     // Ventas (HU-05, HU-09)
     registrarVenta: (datos, token) => axios.post(`${BASE_URL}/ventas`, datos, { headers: authHeader(token) }),
-    historialVentas: (params, token) => axios.get(`${BASE_URL}/ventas`, { params, headers: authHeader(token) })
+    historialVentas: (params, token) => axios.get(`${BASE_URL}/ventas`, { params, headers: authHeader(token) }),
+
+    // Alertas de stock — microservicio en Go (segundo lenguaje de backend)
+    alertasStock: (token) => axios.get(`${ALERTAS_URL}/alertas/stock-bajo`, { headers: authHeader(token) })
 };
 
 module.exports = api;
