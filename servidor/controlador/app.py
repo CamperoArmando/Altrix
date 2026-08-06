@@ -40,6 +40,7 @@ def create_app():
     init_mongo(app) # <--- Añadir esta línea
     return app
 
+
 def _sembrar_roles():
     """Crea los roles base (Administrador, Vendedor, Consultor) si no existen."""
     for nombre in ("Administrador", "Vendedor", "Consultor"):

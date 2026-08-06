@@ -6,6 +6,10 @@ python-dotenv==1.2.2
 PyJWT==2.10.1
 reportlab==4.4.10
 openpyxl==3.1.5
+<<<<<<< HEAD
 Pillow==12.1.1
 pymongo==4.6.3
 dnspython==2.6.1
+=======
+Pillow==12.1.1
+>>>>>>> 770363e51ffbb309c2efffb5fc6669397ade0d94

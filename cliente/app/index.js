@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const api = require("../services/api");
 
 const app = express();
+
+app.set("trust proxy", 1);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +37,12 @@ app.post("/login", async (req, res) => {
     try {
         const r = await api.login(req.body.email, req.body.password);
         res.cookie("token", r.data.token, { httpOnly: true, sameSite: "lax" });
+        res.cookie("token", r.data.token, {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production"
+        });
+
         res.redirect("/");
     } catch (error) {
         const msg = error.response?.data?.error || "No se pudo iniciar sesión. Intenta de nuevo.";
@@ -241,4 +249,9 @@ app.get("/alertas", requireAuth, async (req, res) => {
 
 app.listen(3000, () => {
     console.log("Cliente corriendo en http://localhost:3000");
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Cliente corriendo en el puerto ${PORT}`);
 });

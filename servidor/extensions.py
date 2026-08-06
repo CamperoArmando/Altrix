@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+
 from pymongo import MongoClient
 
 db = SQLAlchemy()
@@ -13,3 +14,6 @@ def init_mongo(app):
         mongo_client = MongoClient(app.config['MONGO_URI'])
         # Obtiene la base de datos definida en la URI (por defecto 'altrix')
         mongo_db = mongo_client.get_default_database()
+
+
+# Instancia única de SQLAlchemy, compartida por todos los modelos y repositorios.
