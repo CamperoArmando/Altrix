@@ -1,0 +1,24 @@
+<header class="page-header">
+    <div>
+        <span class="eyebrow">Altrix · Inventario</span>
+        <h1><%= typeof titulo !== 'undefined' ? titulo : 'Productos' %></h1>
+    </div>
+    <div class="usuario-bar">
+        <span class="usuario-info">
+            <%= usuario ? usuario.nombre : 'Invitado' %>
+            <span class="usuario-rol"><%= usuario ? usuario.rol : '' %></span>
+        </span>
+        <a href="/logout" class="btn btn-ghost btn-sm">Cerrar sesión</a>
+    </div>
+</header>
+
+<nav class="nav-tabs">
+    <a href="/" class="<%= typeof activo !== 'undefined' && activo === 'productos' ? 'activo' : '' %>">Productos</a>
+    <% if (usuario && usuario.rol === 'Administrador') { %>
+        <a href="/categorias" class="<%= typeof activo !== 'undefined' && activo === 'categorias' ? 'activo' : '' %>">Categorías</a>
+        <a href="/ventas" class="<%= typeof activo !== 'undefined' && activo === 'ventas' ? 'activo' : '' %>">Ventas</a>
+    <% } %>
+    <% if (usuario && (usuario.rol === 'Administrador' || usuario.rol === 'Vendedor')) { %>
+        <a href="/alertas" class="<%= typeof activo !== 'undefined' && activo === 'alertas' ? 'activo' : '' %>">Alertas de stock</a>
+    <% } %>
+</nav>
