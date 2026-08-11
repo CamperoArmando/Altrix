@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Altrix — Usuarios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="wrap">
+
+    <%- include('partials/nav', { usuario, activo: 'usuarios', titulo: 'Gestión de usuarios' }) %>
+
+    <% if (mensaje) { %>
+        <div class="alerta <%= mensaje.tipo %>"><%= mensaje.texto %></div>
+    <% } %>
+
+    <!-- Reportes -->
+    <div class="lista-header" style="margin-top:16px;">
+        <h2>Reportes</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/reportes/ventas?formato=pdf" class="btn btn-ghost btn-sm">📄 Ventas PDF</a>
+            <a href="/reportes/ventas?formato=excel" class="btn btn-ghost btn-sm">📊 Ventas Excel</a>
+            <a href="/reportes/productos-mas-vendidos?formato=pdf" class="btn btn-ghost btn-sm">📄 Más vendidos PDF</a>
+            <a href="/reportes/productos-mas-vendidos?formato=excel" class="btn btn-ghost btn-sm">📊 Más vendidos Excel</a>
+        </div>
+    </div>
+
+    <!-- Alta de usuario -->
+    <div class="lista-header" style="margin-top:24px;">
+        <h2>Nuevo usuario</h2>
+    </div>
+    <form method="POST" action="/usuarios" class="form-inline" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
+        <input type="text" name="nombre" placeholder="Nombre" required class="input" style="flex:1;min-width:140px;">
+        <input type="email" name="email" placeholder="Email" required class="input" style="flex:1;min-width:180px;">
+        <input type="password" name="password" placeholder="Contraseña" required class="input" style="flex:1;min-width:140px;">
+        <select name="rol" required class="input" style="flex:0 0 auto;">
+            <% roles.forEach(r => { %>
+                <option value="<%= r.nombre %>"><%= r.nombre %></option>
+            <% }) %>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Crear usuario</button>
+    </form>
+
+    <!-- Lista de usuarios -->
+    <div class="lista-header">
+        <h2>Usuarios del sistema</h2>
+        <div class="summary-bar" style="font-size:13px;"><strong><%= usuarios.length %></strong> usuarios registrados</div>
+    </div>
+
+    <% if (usuarios.length === 0) { %>
+        <div class="vacio"><strong>No hay usuarios registrados</strong></div>
+    <% } else { %>
+        <% usuarios.forEach(u => { %>
+        <div class="producto-row">
+            <div class="producto-main">
+                <div class="producto-nombre">
+                    <span class="nombre"><%= u.nombre %></span>
+                    <span class="categoria-tag"><%= u.email %></span>
+                </div>
+                <div>
+                    <span class="usuario-rol" style="font-size:12px;"><%= u.rol %></span>
+                </div>
+                <div style="font-size:12px;color:<%= u.activo ? 'var(--ok)' : 'var(--danger)' %>;">
+                    <%= u.activo ? 'Activo' : 'Inactivo' %>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                    <!-- Cambiar rol -->
+                    <form method="POST" action="/usuarios/<%= u.id %>/rol" style="display:flex;gap:4px;">
+                        <select name="rol" class="input" style="font-size:12px;padding:4px 6px;">
+                            <% roles.forEach(r => { %>
+                                <option value="<%= r.nombre %>" <%= u.rol === r.nombre ? 'selected' : '' %>><%= r.nombre %></option>
+                            <% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-ghost btn-sm" style="font-size:11px;">Cambiar rol</button>
+                    </form>
+                    <!-- Dar de baja -->
+                    <% if (u.activo && u.id !== usuario.id) { %>
+                    <form method="POST" action="/usuarios/<%= u.id %>/eliminar">
+                        <button type="submit" class="btn btn-danger btn-sm" style="font-size:11px;"
+                            onclick="return confirm('¿Desactivar este usuario?')">Desactivar</button>
+                    </form>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    <% } %>
+
+</div>
+</body>
+</html>

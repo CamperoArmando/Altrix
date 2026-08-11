@@ -17,6 +17,7 @@
     <% if (usuario && usuario.rol === 'Administrador') { %>
         <a href="/categorias" class="<%= typeof activo !== 'undefined' && activo === 'categorias' ? 'activo' : '' %>">Categorías</a>
         <a href="/ventas" class="<%= typeof activo !== 'undefined' && activo === 'ventas' ? 'activo' : '' %>">Ventas</a>
+        <a href="/usuarios" class="<%= typeof activo !== 'undefined' && activo === 'usuarios' ? 'activo' : '' %>">Usuarios y Reportes</a>
     <% } %>
     <% if (usuario && (usuario.rol === 'Administrador' || usuario.rol === 'Vendedor')) { %>
         <a href="/alertas" class="<%= typeof activo !== 'undefined' && activo === 'alertas' ? 'activo' : '' %>">Alertas de stock</a>
