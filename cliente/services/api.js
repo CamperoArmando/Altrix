@@ -1,10 +1,15 @@
 const axios = require("axios");
 
-// En Docker, el cliente debe llamar al servidor por su nombre de servicio
-// ("servidor"), no por localhost. Fuera de Docker sigue apuntando a localhost.
-const BASE_URL = process.env.API_URL || "http://localhost:5000";
-// Microservicio de alertas de stock, escrito en Go (segundo lenguaje de backend).
-const ALERTAS_URL = process.env.ALERTAS_URL || "http://localhost:5001";
+// URLs de los servicios REST publicados en producción.
+// Servicio 1: API principal Flask — desplegado en Railway
+// https://altrix-production-421e.up.railway.app
+// Servicio 2: Microservicio de alertas Go — desplegado en Render
+// https://altrix-alertas-go.onrender.com
+//
+// En producción estas URLs llegan por variable de entorno (configuradas en
+// Railway). En desarrollo local se usan los valores por defecto (localhost).
+const BASE_URL = process.env.API_URL || "https://altrix-production-421e.up.railway.app";
+const ALERTAS_URL = process.env.ALERTAS_URL || "https://altrix-alertas-go.onrender.com";
 
 // El token viaja por parámetro (no como variable global) porque este
 // mismo proceso Node atiende a varios usuarios con sesiones distintas.
